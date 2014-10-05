@@ -258,25 +258,25 @@ void ofApp::draw(){
             if (showTimeline) {
                 ofSetColor(255, 200);
                 if (whichThresh == 0) {
-                    ofSetColor(255, 0, 0, 200);
+                    ofSetColor(94, 0, 182, 200);
                 }
                 ofRect(20, ofGetHeight() - 100, ofGetWidth()-40, 10);
                 
                 ofSetColor(255, 200);
                 if (whichThresh == 1) {
-                    ofSetColor(255, 0, 0, 200);
+                    ofSetColor(0, 172, 236, 200);
                 }
                 ofRect(20, ofGetHeight() - 80, ofGetWidth()-40, 10);
                 
                 ofSetColor(255, 200);
                 if (whichThresh == 2) {
-                    ofSetColor(255, 0, 0, 200);
+                    ofSetColor(224, 146, 47, 200);
                 }
                 ofRect(20, ofGetHeight() - 60, ofGetWidth()-40, 10);
                 
                 ofSetColor(255, 200);
                 if (whichThresh == 3) {
-                    ofSetColor(255, 0, 0, 200);
+                    ofSetColor(190, 0, 0, 200);
                 }
                 ofRect(20, ofGetHeight() - 40, ofGetWidth()-40, 10);
                 
@@ -287,7 +287,7 @@ void ofApp::draw(){
                 }
                 ofSetColor(0, 0, 255, 255);
                 ofRect(xAcross, ofGetHeight()-110, 2, 90);
-                scrubber+=5;
+                scrubber+=1;
             }
             
             ofSetColor(255, 255, 255, 255);
