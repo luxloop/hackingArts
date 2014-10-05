@@ -27,7 +27,9 @@ public:
     
     ofxIntSlider minBlob;
     ofxIntSlider maxBlob;
-    ofxIntSlider bgSubThreshold;
+    ofxIntSlider nearThresh;
+    ofxIntSlider farThresh;
+    ofxFloatSlider kAngle;
     
 	ofxPanel gui;
     
@@ -56,8 +58,8 @@ public:
 	
 	bool bThreshWithOpenCV;
 	
-	int nearThreshold;
-	int farThreshold;
+	//int nearThreshold;
+	//int farThreshold;
 	
 	int kinectAngle;
     

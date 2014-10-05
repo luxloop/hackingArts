@@ -27,29 +27,18 @@ void ofApp::setup(){
     whichThresh = 0;
     
     
-    gui.setup(); // most of the time you don't need a name
-    
+    gui.setup();
     gui.add(minBlob.setup("Min Blob Size", 10000, 5, 20000));
     gui.add(maxBlob.setup("Max Blob Size", 300000, 5, 800000));
-	gui.add(bgSubThreshold.setup("BG Sub Threshold", 80, 1, 255));
+    gui.add(nearThresh.setup("Near Threshold", 230, 0, 512));
+    gui.add(farThresh.setup("Far Threshold", 70, 0, 512));
+    gui.add(kAngle.setup("Kinect Angle", 0, -30, 30));
     
-	//kinect.setRegistration(true);  // enable depth->video image calibration
     
 	kinect.init();
-	//kinect.init(true); // shows infrared instead of RGB video image
-	//kinect.init(false, false); // disable video image (faster fps)
+	kinect.init(false, false); // disable video image (faster fps)
     //kinect.setDepthClipping(500,4000);
 	kinect.open();
-	
-    /*
-     // print the intrinsic IR sensor values
-     if(kinect.isConnected()) {
-     ofLogNotice() << "sensor-emitter dist: " << kinect.getSensorEmitterDistance() << "cm";
-     ofLogNotice() << "sensor-camera dist:  " << kinect.getSensorCameraDistance() << "cm";
-     ofLogNotice() << "zero plane pixel size: " << kinect.getZeroPlanePixelSize() << "mm";
-     ofLogNotice() << "zero plane dist: " << kinect.getZeroPlaneDistance() << "mm";
-     }
-     */
 	
 #ifdef USE_TWO_KINECTS
 	kinect2.init();
@@ -65,27 +54,17 @@ void ofApp::setup(){
 	//grayCamImage.allocate(kinect.width, kinect.height);
 	//grayBg.allocate(kinect.width, kinect.height);
 	//grayDiff.allocate(kinect.width, kinect.height);
-    
-	bLearnBakground = true;
-    //bgSubThreshold = 30;
 	
-	nearThreshold = 230;
-	farThreshold = 70;
-	
-	
-	// zero the tilt on startup
-	//kinectAngle = 0;
-	//kinect.setCameraTiltAngle(kinectAngle);
+	//nearThreshold = 230;
+	//farThreshold = 70;
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    kinect.setCameraTiltAngle(kAngle);
+    
     for(auto p : videoPlayers1) {
         p->update();
-    }
-    if (videoPlayers1[0]->isLoaded() && videoPlayers1[1]->isLoaded()) {
-        videoPlayers1[0]->play();
-        videoPlayers1[1]->play();
     }
     
     
@@ -98,8 +77,8 @@ void ofApp::update(){
         
         grayThreshNear = grayImage;
         grayThreshFar = grayImage;
-        grayThreshNear.threshold(nearThreshold, true);
-        grayThreshFar.threshold(farThreshold);
+        grayThreshNear.threshold(nearThresh, true);
+        grayThreshFar.threshold(farThresh);
         cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
 		
         
@@ -199,6 +178,12 @@ void ofApp::draw(){
             break;
             
         case B:
+            
+            if (videoPlayers1[1]->isPlaying() == false) {
+                videoPlayers1[0]->play();
+                videoPlayers1[1]->play();
+            }
+            
             ofPushMatrix();
             ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
             videoPlayers1[whichVid]->draw(-200, -150, 400, 300);
@@ -237,47 +222,24 @@ void ofApp::draw(){
 
     
 	
-	// draw instructions
-	ofSetColor(255, 255, 255);
-	stringstream reportStream;
-    
-	reportStream << ofToString(whichThresh) << " " << ofToString(feet) << " " <<"set near threshold " << nearThreshold << " (press: + -)" << endl
-	<< "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
-	<< ", fps: " << ofGetFrameRate() << endl
-	<< "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
-    
-	ofDrawBitmapString(reportStream.str(), 20, 652);
-    
-    gui.draw();
-    
+    if (dmode == A) {
+        // draw instructions
+        ofSetColor(255, 255, 255);
+        stringstream reportStream;
+        
+        reportStream << "Which Zone: " << ofToString(whichThresh) << " " << endl << "num blobs found: " << contourFinder.nBlobs << endl
+        << "fps: " << ofGetFrameRate() << endl
+        << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
+        
+        ofDrawBitmapString(reportStream.str(), 20, 652);
+        
+        gui.draw();
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     switch (key) {
-		case '>':
-		case '.':
-			farThreshold ++;
-			if (farThreshold > 255) farThreshold = 255;
-			break;
-			
-		case '<':
-		case ',':
-			farThreshold --;
-			if (farThreshold < 0) farThreshold = 0;
-			break;
-			
-		case '+':
-		case '=':
-			nearThreshold ++;
-			if (nearThreshold > 255) nearThreshold = 255;
-			break;
-			
-		case '-':
-			nearThreshold --;
-			if (nearThreshold < 0) nearThreshold = 0;
-			break;
-			
 		case 'w':
 			kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
 			break;
@@ -364,7 +326,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 //--------------------------------------------------------------
 void ofApp::exit() {
-	//kinect.setCameraTiltAngle(0); // zero the tilt on exit
+	kinect.setCameraTiltAngle(0); // zero the tilt on exit
 	kinect.close();
 	
 #ifdef USE_TWO_KINECTS
