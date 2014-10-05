@@ -11,8 +11,8 @@ void ofApp::setup(){
     for(int i=0; i<N_VIDEO_PLAYERS_1; i++) {
         videoPlayers1.push_back(new ofxAVFVideoPlayer());
     }
-    videoPlayers1[0]->loadMovie("videos/fingers.mov");
-    videoPlayers1[1]->loadMovie("videos/fingers2.mov");
+    videoPlayers1[0]->loadMovie("videos/dialogue0.mov");
+    videoPlayers1[1]->loadMovie("videos/dialogue1.mov");
     for(auto p : videoPlayers1) {
         //p->play();
         p->setLoopState(OF_LOOP_NONE);
@@ -161,7 +161,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
+    ofBackground(0);
     
     ofSetColor(255, 255, 255);
     
@@ -198,18 +198,26 @@ void ofApp::draw(){
             break;
             
         case B:
-            ofPushMatrix();
-            ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-            videoPlayers1[whichVid_1]->draw(-200, -150, 400, 300);
-            //videoPlayers1[1]->draw(ofGetWidth()/2, 0);
-            //ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
-            ofPopMatrix();
+            {
             
-        
+            float vidHeight = (ofGetWidth()*videoPlayers1[0]->getHeight())/videoPlayers1[0]->getWidth();
+            float vidStart = (ofGetHeight()-vidHeight)/2;
+            
+            videoPlayers1[whichVid_1]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            
+            for(auto p : videoPlayers2) {
+                if (p->getIsMovieDone()) {
+                    playAll=false;
+                    p->setPaused(true);
+                    p->setPosition(0.0);
+                }
+            }
+            
             
             //cout << videoPlayers1[0]->getIsMovieDone() << endl;
             break;
-            
+            }
+    
         case C:
             
             ofPushMatrix();
@@ -430,6 +438,21 @@ void ofApp::keyPressed(int key){
                 } else {
                     videoPlayers2[whichVid_2]->play();
                     playAll = true;
+                }
+            }
+			break;
+            
+        case 'r':
+            playAll = false;
+			if (dmode == B) {
+                for(auto p : videoPlayers1) {
+                    p->setPaused(true);
+                    p->setPosition(0.0);
+                }
+            } else if (dmode == C) {
+                for(auto p : videoPlayers2) {
+                    p->setPaused(true);
+                    p->setPosition(0.0);
                 }
             }
 			break;
