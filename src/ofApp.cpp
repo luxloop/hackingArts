@@ -6,6 +6,10 @@ void ofApp::setup(){
 	ofSetFrameRate(60);
     ofBackground(0);
     
+    narrPath = "videos/narr_";
+    narrScene = "A";
+    
+    narrDone = false;
     
     // Two-Shot player:
     for(int i=0; i<N_VIDEO_PLAYERS_1; i++) {
@@ -22,7 +26,7 @@ void ofApp::setup(){
     //Branching player:
     for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
         videoPlayers2.push_back(new ofxAVFVideoPlayer());
-        videoPlayers2[i]->loadMovie("videos/fingers.mov");
+        videoPlayers2[i]->loadMovie("videos/narr_A.mov");
         videoPlayers2[i]->setLoopState(OF_LOOP_NONE);
         videoPlayers2[i]->setPaused(true);
     }
@@ -205,7 +209,7 @@ void ofApp::draw(){
             
             videoPlayers1[whichVid_1]->draw(0, vidStart, ofGetWidth(), vidHeight);
             
-            for(auto p : videoPlayers2) {
+            for(auto p : videoPlayers1) {
                 if (p->getIsMovieDone()) {
                     playAll=false;
                     p->setPaused(true);
@@ -219,25 +223,51 @@ void ofApp::draw(){
             }
     
         case C:
-            
+            {
             ofPushMatrix();
-            ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-            videoPlayers2[whichVid_2]->draw(-200, -150, 400, 300);
+            //ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+            //videoPlayers2[whichVid_2]->draw(-200, -150, 400, 300);
+            
+            float vidHeight = (ofGetWidth()*videoPlayers2[whichVid_2]->getHeight())/videoPlayers2[whichVid_2]->getWidth();
+            float vidStart = (ofGetHeight()-vidHeight)/2;
+            
+            videoPlayers2[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
             
             if (videoPlayers2[whichVid_2]->getPosition() > 0.9 && !onDeck){
+                if (narrScene == "A") {
+                    narrScene = "B";
+                } else if (narrScene == "B") {
+                    narrScene = "C";
+                } else if (narrScene == "C") {
+                    narrScene = "D";
+                } else if (narrScene == "D") {
+                    narrScene = "E";
+                } else if (narrScene == "E") {
+                    narrScene = "F";
+                } else if (narrScene == "F") {
+                    narrDone = true;
+                }
+                
+                string onDeckPath = narrPath + narrScene + "_" + ofToString(whichThresh) + ".mov";
+                
+//                if (narrDone) {
+//                    onDeckPath = "videos/narr_F.mov";
+//                }
+                
                 if (whichVid_2 == 0) {
                     videoPlayers2[1]->stop();
-                    videoPlayers2[1]->loadMovie("videos/test.mov");
+                    //videoPlayers2[1]->loadMovie("videos/narr_B_1.mov");
+                    videoPlayers2[1]->loadMovie(onDeckPath);
                     videoPlayers2[1]->setPaused(true);
                 } else {
                     videoPlayers2[0]->stop();
-                    videoPlayers2[0]->loadMovie("videos/test.mov");
+                    videoPlayers2[0]->loadMovie(onDeckPath);
                     videoPlayers2[0]->setPaused(true);
                 }
                 onDeck = true;
             }
             
-            if (videoPlayers2[whichVid_2]->getPosition() > 0.98){
+            if (videoPlayers2[whichVid_2]->getPosition() > 0.98 && !narrDone){
                 if (whichVid_2 == 0) {
                     videoPlayers2[1]->play();
                 } else {
@@ -249,7 +279,7 @@ void ofApp::draw(){
             
             
             //if (videoPlayers2[whichVid_2]->getIsMovieDone()) {
-            if (videoPlayers2[whichVid_2]->getIsMovieDone()) {
+            if (videoPlayers2[whichVid_2]->getIsMovieDone() && !narrDone) {
                 if (whichVid_2 == 0) {
                     whichVid_2 = 1;
                 } else {
@@ -258,6 +288,15 @@ void ofApp::draw(){
                 //videoPlayers2[whichVid_2]->play();
                 onDeck = false;
             }
+                
+            
+                if (narrDone) {
+                    for(auto p : videoPlayers1) {
+                        playAll=false;
+                        p->setPaused(true);
+                        p->setPosition(0.0);
+                    }
+                }
             ofPopMatrix();
             
             
@@ -295,12 +334,12 @@ void ofApp::draw(){
                 }
                 ofSetColor(0, 0, 255, 255);
                 ofRect(xAcross, ofGetHeight()-110, 2, 90);
-                scrubber+=1;
+                scrubber+=0.4;
             }
             
             ofSetColor(255, 255, 255, 255);
             break;
-            
+            }
         case D:
             switch (whichThresh) {
                 case 0:
@@ -451,9 +490,14 @@ void ofApp::keyPressed(int key){
                 }
             } else if (dmode == C) {
                 for(auto p : videoPlayers2) {
+                    p->loadMovie("videos/narr_A.mov");
                     p->setPaused(true);
                     p->setPosition(0.0);
                 }
+                whichVid_2 = 0;
+                narrDone = false;
+                narrScene = "A";
+                scrubber = 20;
             }
 			break;
 	}

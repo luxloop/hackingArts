@@ -75,11 +75,16 @@ public:
     int whichVid_2;
     int whichThresh;
     bool showTimeline;
-    int scrubber;
+    float scrubber;
     
     bool playAll;
     bool onDeck;
     
+    string narrPath;
+    string narrScene;
+    
+    bool narrDone;
+
     
     std::vector<ofxAVFVideoPlayer *> videoPlayers1;
     static const int N_VIDEO_PLAYERS_1 = 2;
