@@ -12,6 +12,8 @@ public:
     void setup();
     void update();
     void draw();
+    
+    void exit();
 
     void keyPressed(int key);
     void keyReleased(int key);
@@ -43,9 +45,9 @@ public:
     
     
     //ofxCvColorImage			colorCamImg;
-    ofxCvGrayscaleImage 	grayCamImage;
-    ofxCvGrayscaleImage 	grayBg;
-    ofxCvGrayscaleImage 	grayDiff;
+    //ofxCvGrayscaleImage 	grayCamImage;
+    //ofxCvGrayscaleImage 	grayBg;
+    //ofxCvGrayscaleImage 	grayDiff;
     
     //int bgSubThreshold;
     bool bLearnBakground;
@@ -62,11 +64,13 @@ public:
     enum displayModes {A, B, C};
     displayModes dmode;
     
-    ofVideoPlayer eyeTest;
     float meters;
     float feet;
     ofVec3f world;
     float angle;
+    
+    int whichVid;
+    int whichThresh;
     
     
     
