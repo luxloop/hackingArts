@@ -63,7 +63,7 @@ public:
 	
 	int kinectAngle;
     
-    enum displayModes {A, B, C};
+    enum displayModes {A, B, C, D};
     displayModes dmode;
     
     float meters;
@@ -71,13 +71,19 @@ public:
     ofVec3f world;
     float angle;
     
-    int whichVid;
+    int whichVid_1;
+    int whichVid_2;
     int whichThresh;
+    bool showTimeline;
+    int scrubber;
     
     bool playAll;
+    bool onDeck;
     
     
     std::vector<ofxAVFVideoPlayer *> videoPlayers1;
     static const int N_VIDEO_PLAYERS_1 = 2;
-    	
+    
+	std::vector<ofxAVFVideoPlayer *> videoPlayers2;
+    static const int N_VIDEO_PLAYERS_2 = 2;
 };

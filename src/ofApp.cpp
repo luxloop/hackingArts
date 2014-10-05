@@ -6,6 +6,8 @@ void ofApp::setup(){
 	ofSetFrameRate(60);
     ofBackground(0);
     
+    
+    // Two-Shot player:
     for(int i=0; i<N_VIDEO_PLAYERS_1; i++) {
         videoPlayers1.push_back(new ofxAVFVideoPlayer());
     }
@@ -17,6 +19,14 @@ void ofApp::setup(){
         p->setPaused(true);
     }
     
+    //Branching player:
+    for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
+        videoPlayers2.push_back(new ofxAVFVideoPlayer());
+        videoPlayers2[i]->loadMovie("videos/fingers.mov");
+        videoPlayers2[i]->setLoopState(OF_LOOP_NONE);
+        videoPlayers2[i]->setPaused(true);
+    }
+    
 	//ofSetLogLevel(OF_LOG_VERBOSE);
     dmode = A;
     meters = 0.0;
@@ -24,18 +34,21 @@ void ofApp::setup(){
     world = ofVec3f(0,1,1);
     float angle = 0.0;
     
-    whichVid = 0;
+    whichVid_1 = 0;
+    whichVid_2 = 0;
     whichThresh = 0;
     
     playAll = false;
-    
+    showTimeline = false;
+    scrubber = 20;
+    onDeck = false;
     
     gui.setup();
     gui.add(minBlob.setup("Min Blob Size", 10000, 5, 20000));
     gui.add(maxBlob.setup("Max Blob Size", 300000, 5, 800000));
     gui.add(nearThresh.setup("Near Threshold", 230, 0, 512));
     gui.add(farThresh.setup("Far Threshold", 70, 0, 512));
-    gui.add(kAngle.setup("Kinect Angle", 0, -30, 30));
+    gui.add(kAngle.setup("Kinect Angle", 15, -30, 30));
     
     
 	kinect.init();
@@ -67,6 +80,10 @@ void ofApp::update(){
     kinect.setCameraTiltAngle(kAngle);
     
     for(auto p : videoPlayers1) {
+        p->update();
+    }
+    
+    for(auto p : videoPlayers2) {
         p->update();
     }
     
@@ -127,9 +144,9 @@ void ofApp::update(){
         }
         
         if (angle <= 90) {
-            whichVid = 0;
+            whichVid_1 = 0;
         } else {
-            whichVid = 1;
+            whichVid_1 = 1;
         }
         
         float vidPos = ofMap(angle, 45, 135, 0, 1,true);
@@ -183,15 +200,100 @@ void ofApp::draw(){
         case B:
             ofPushMatrix();
             ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-            videoPlayers1[whichVid]->draw(-200, -150, 400, 300);
+            videoPlayers1[whichVid_1]->draw(-200, -150, 400, 300);
             //videoPlayers1[1]->draw(ofGetWidth()/2, 0);
+            //ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
             ofPopMatrix();
             
+        
             
-            cout << videoPlayers1[0]->getIsMovieDone() << endl;
+            //cout << videoPlayers1[0]->getIsMovieDone() << endl;
             break;
             
         case C:
+            
+            ofPushMatrix();
+            ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+            videoPlayers2[whichVid_2]->draw(-200, -150, 400, 300);
+            
+            if (videoPlayers2[whichVid_2]->getPosition() > 0.9 && !onDeck){
+                if (whichVid_2 == 0) {
+                    videoPlayers2[1]->stop();
+                    videoPlayers2[1]->loadMovie("videos/test.mov");
+                    videoPlayers2[1]->setPaused(true);
+                } else {
+                    videoPlayers2[0]->stop();
+                    videoPlayers2[0]->loadMovie("videos/test.mov");
+                    videoPlayers2[0]->setPaused(true);
+                }
+                onDeck = true;
+            }
+            
+            if (videoPlayers2[whichVid_2]->getPosition() > 0.98){
+                if (whichVid_2 == 0) {
+                    videoPlayers2[1]->play();
+                } else {
+                    videoPlayers2[0]->play();
+                }
+                
+            }
+
+            
+            
+            //if (videoPlayers2[whichVid_2]->getIsMovieDone()) {
+            if (videoPlayers2[whichVid_2]->getIsMovieDone()) {
+                if (whichVid_2 == 0) {
+                    whichVid_2 = 1;
+                } else {
+                    whichVid_2 = 0;
+                }
+                //videoPlayers2[whichVid_2]->play();
+                onDeck = false;
+            }
+            ofPopMatrix();
+            
+            
+            
+            
+            if (showTimeline) {
+                ofSetColor(255, 200);
+                if (whichThresh == 0) {
+                    ofSetColor(255, 0, 0, 200);
+                }
+                ofRect(20, ofGetHeight() - 100, ofGetWidth()-40, 10);
+                
+                ofSetColor(255, 200);
+                if (whichThresh == 1) {
+                    ofSetColor(255, 0, 0, 200);
+                }
+                ofRect(20, ofGetHeight() - 80, ofGetWidth()-40, 10);
+                
+                ofSetColor(255, 200);
+                if (whichThresh == 2) {
+                    ofSetColor(255, 0, 0, 200);
+                }
+                ofRect(20, ofGetHeight() - 60, ofGetWidth()-40, 10);
+                
+                ofSetColor(255, 200);
+                if (whichThresh == 3) {
+                    ofSetColor(255, 0, 0, 200);
+                }
+                ofRect(20, ofGetHeight() - 40, ofGetWidth()-40, 10);
+                
+                int xAcross = scrubber;
+                if (xAcross > ofGetWidth() - 20) {
+                    xAcross = 20;
+                    scrubber = 20;
+                }
+                ofSetColor(0, 0, 255, 255);
+                ofRect(xAcross, ofGetHeight()-110, 2, 90);
+                scrubber+=5;
+            }
+            
+            ofSetColor(255, 255, 255, 255);
+            break;
+            
+        case D:
             switch (whichThresh) {
                 case 0:
                     ofSetColor(120, 0, 0);
@@ -214,6 +316,7 @@ void ofApp::draw(){
             }
             ofRect(0, 0, ofGetWidth(), ofGetHeight());
             ofSetColor(255, 255, 255);
+            
             break;
             
         default:
@@ -232,6 +335,20 @@ void ofApp::draw(){
         << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
         
         ofDrawBitmapString(reportStream.str(), 20, 652);
+        
+        
+        stringstream video1;
+        video1 << "First Group" << endl;
+        
+        for(auto p : videoPlayers1) {
+            video1 << ofToString(p->getMoviePath()) << endl;
+            video1 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
+        
+        ofDrawBitmapString(video1.str(), 650, 600);
+        
+        
+        
         
         gui.draw();
     }
@@ -253,18 +370,6 @@ void ofApp::keyPressed(int key){
 			kinect.setCameraTiltAngle(0); // zero the tilt
 			kinect.close();
 			break;
-			
-		case OF_KEY_UP:
-			kinectAngle++;
-			if(kinectAngle>30) kinectAngle=30;
-			kinect.setCameraTiltAngle(kinectAngle);
-			break;
-			
-		case OF_KEY_DOWN:
-			kinectAngle--;
-			if(kinectAngle<-30) kinectAngle=-30;
-			kinect.setCameraTiltAngle(kinectAngle);
-			break;
             
         case '1':
 			dmode = A;
@@ -272,19 +377,40 @@ void ofApp::keyPressed(int key){
             
         case '2':
             playAll = false;
+            for(auto p : videoPlayers1) {
+                p->setPaused(true);
+            }
+            for(auto p : videoPlayers2) {
+                p->setPaused(true);
+            }
 			dmode = B;
 			break;
             
         case '3':
             playAll = false;
+            for(auto p : videoPlayers1) {
+                p->setPaused(true);
+            }
+            for(auto p : videoPlayers2) {
+                p->setPaused(true);
+            }
 			dmode = C;
+			break;
+            
+        case '4':
+			dmode = D;
+			break;
+            
+        case 't':
+            showTimeline = !showTimeline;
 			break;
             
         case ' ':
 			if (dmode == B) {
                 if (playAll) {
                     for(auto p : videoPlayers1) {
-                        p->stop();
+                        //p->stop();
+                        p->setPaused(true);
                         playAll = false;
                     }
                 } else {
@@ -294,6 +420,17 @@ void ofApp::keyPressed(int key){
                     }
                 }
                 
+            } else if (dmode == C) {
+                if (playAll) {
+                    for(auto p : videoPlayers2) {
+                        //p->stop();
+                        p->setPaused(true);
+                        playAll = false;
+                    }
+                } else {
+                    videoPlayers2[whichVid_2]->play();
+                    playAll = true;
+                }
             }
 			break;
 	}
