@@ -13,7 +13,8 @@ void ofApp::setup(){
     videoPlayers1[1]->loadMovie("videos/fingers2.mov");
     for(auto p : videoPlayers1) {
         //p->play();
-        p->setLoopState(OF_LOOP_NORMAL);
+        p->setLoopState(OF_LOOP_NONE);
+        p->setPaused(true);
     }
     
 	//ofSetLogLevel(OF_LOG_VERBOSE);
@@ -25,6 +26,8 @@ void ofApp::setup(){
     
     whichVid = 0;
     whichThresh = 0;
+    
+    playAll = false;
     
     
     gui.setup();
@@ -178,17 +181,14 @@ void ofApp::draw(){
             break;
             
         case B:
-            
-            if (videoPlayers1[1]->isPlaying() == false) {
-                videoPlayers1[0]->play();
-                videoPlayers1[1]->play();
-            }
-            
             ofPushMatrix();
             ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
             videoPlayers1[whichVid]->draw(-200, -150, 400, 300);
             //videoPlayers1[1]->draw(ofGetWidth()/2, 0);
             ofPopMatrix();
+            
+            
+            cout << videoPlayers1[0]->getIsMovieDone() << endl;
             break;
             
         case C:
@@ -271,15 +271,30 @@ void ofApp::keyPressed(int key){
 			break;
             
         case '2':
+            playAll = false;
 			dmode = B;
 			break;
             
         case '3':
+            playAll = false;
 			dmode = C;
 			break;
             
-        case 'b':
-			bLearnBakground = true;
+        case ' ':
+			if (dmode == B) {
+                if (playAll) {
+                    for(auto p : videoPlayers1) {
+                        p->stop();
+                        playAll = false;
+                    }
+                } else {
+                    for(auto p : videoPlayers1) {
+                        p->play();
+                        playAll = true;
+                    }
+                }
+                
+            }
 			break;
 	}
 }

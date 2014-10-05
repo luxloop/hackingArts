@@ -74,6 +74,7 @@ public:
     int whichVid;
     int whichThresh;
     
+    bool playAll;
     
     
     std::vector<ofxAVFVideoPlayer *> videoPlayers1;
