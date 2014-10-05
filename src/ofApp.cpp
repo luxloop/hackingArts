@@ -123,9 +123,9 @@ void ofApp::update(){
         meters = kinect.getDistanceAt(blob.centroid.x, blob.centroid.y) / 1000;
         feet = meters * 3.28083333;
         
-        if (feet >= 12) {
+        if (feet >= 8) {
             whichThresh = 3;
-        } else if (feet >= 8) {
+        } else if (feet >= 6) {
             whichThresh = 2;
         } else if (feet >= 4) {
             whichThresh = 1;
@@ -241,7 +241,7 @@ void ofApp::draw(){
 	ofSetColor(255, 255, 255);
 	stringstream reportStream;
     
-	reportStream << "set near threshold " << nearThreshold << " (press: + -)" << endl
+	reportStream << ofToString(whichThresh) << " " << ofToString(feet) << " " <<"set near threshold " << nearThreshold << " (press: + -)" << endl
 	<< "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
 	<< ", fps: " << ofGetFrameRate() << endl
 	<< "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
