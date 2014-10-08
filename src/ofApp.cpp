@@ -388,7 +388,7 @@ void ofApp::draw(){
         video1 << "First Group" << endl;
         
         for(auto p : videoPlayers1) {
-            video1 << ofToString(p->getMoviePath()) << endl;
+            //video1 << ofToString(p->getMoviePath()) << endl;
             video1 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
         }
         

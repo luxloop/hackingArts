@@ -1,1 +1,4 @@
 ofxAVFVideoPlayer
+ofxGui
+ofxKinect
+ofxOpenCv
