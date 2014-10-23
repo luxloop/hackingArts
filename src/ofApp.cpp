@@ -56,7 +56,8 @@ void ofApp::setup(){
     
     
 	kinect.init();
-	kinect.init(false, false); // disable video image (faster fps)
+	//kinect.init(true); // shows infrared instead of RGB video image
+	//kinect.init(false, false); // disable video image (faster fps)
     //kinect.setDepthClipping(500,4000);
 	kinect.open();
 	
