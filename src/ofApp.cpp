@@ -446,14 +446,14 @@ void ofApp::update(){
         
         if (angle <= 90) {
             whichVid_1 = 0;
-            if (angle <= 45) {
+            if (angle <= 70) {
                 whichThreshLR = 0;
             } else {
                 whichThreshLR = 1;
             }
         } else {
             whichVid_1 = 1;
-            if (angle <= 135) {
+            if (angle <= 110) {
                 whichThreshLR = 2;
             } else {
                 whichThreshLR = 3;
@@ -833,6 +833,10 @@ void ofApp::keyPressed(int key){
             invDist = !invDist;
 			break;
             
+        case 'x':
+            clearAll();
+			break;
+            
         case ' ':
 			if (dmode == B) {
                 if (aVideoIsPlaying) {
@@ -931,15 +935,29 @@ void ofApp::keyPressed(int key){
         case 'r':
             aVideoIsPlaying = false;
 			if (dmode == B) {
+                videoPlayers1.clear();
+                for(int i=0; i<N_VIDEO_PLAYERS_1; i++) {
+                    videoPlayers1.push_back(new ofxAVFVideoPlayer());
+                }
+                videoPlayers1[0]->loadMovie("videos/dialogue0.mov");
+                videoPlayers1[1]->loadMovie("videos/dialogue1.mov");
                 for(auto p : videoPlayers1) {
                     p->setPaused(true);
                     p->setPosition(0.0);
                 }
             } else if (dmode == C) {
+                vid_2_A.clear();
+                vid_2_B.clear();
+                vid_2_C.clear();
+                vid_2_D.clear();
+                vid_2_E.clear();
+                vid_2_F.clear();
+                
                 vid_2_A.push_back(new ofxAVFVideoPlayer());
                 vid_2_A[0]->loadMovie("videos/narr_A.mov");
                 vid_2_A[0]->setLoopState(OF_LOOP_NONE);
                 //vid_2_A[0]->setPaused(true);
+                
                 
                 vid_2_F.push_back(new ofxAVFVideoPlayer());
                 vid_2_F[0]->loadMovie("videos/narr_F_0.mov");
@@ -947,21 +965,25 @@ void ofApp::keyPressed(int key){
                 //vid_2_F[0]->setPaused(true);
                 
                 for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
+                    //vid_2_B.clear();
                     vid_2_B.push_back(new ofxAVFVideoPlayer());
                     vid_2_B[i]->loadMovie("videos/narr_B_" + ofToString(i) + ".mov");
                     vid_2_B[i]->setLoopState(OF_LOOP_NONE);
                     //vid_2_B[i]->setPaused(true);
                     
+                    //vid_2_C.clear();
                     vid_2_C.push_back(new ofxAVFVideoPlayer());
                     vid_2_C[i]->loadMovie("videos/narr_C_" + ofToString(i) + ".mov");
                     vid_2_C[i]->setLoopState(OF_LOOP_NONE);
                     //vid_2_C[i]->setPaused(true);
                     
+                    //vid_2_D.clear();
                     vid_2_D.push_back(new ofxAVFVideoPlayer());
                     vid_2_D[i]->loadMovie("videos/narr_D_" + ofToString(i) + ".mov");
                     vid_2_D[i]->setLoopState(OF_LOOP_NONE);
                     //vid_2_D[i]->setPaused(true);
                     
+                    //vid_2_E.clear();
                     vid_2_E.push_back(new ofxAVFVideoPlayer());
                     vid_2_E[i]->loadMovie("videos/narr_E_" + ofToString(i) + ".mov");
                     vid_2_E[i]->setLoopState(OF_LOOP_NONE);
@@ -976,21 +998,42 @@ void ofApp::keyPressed(int key){
                 
                 whichVid_2 = 0;
             } else if (dmode == D) {
-                for(auto p : vid_3) {
-                    p->setPaused(true);
-                    p->setPosition(0.0);
+                vid_3.clear();
+                for(int i=0; i<N_VIDEO_PLAYERS_3; i++) {
+                    vid_3.push_back(new ofxAVFVideoPlayer());
+                    vid_3[i]->loadMovie("videos/distance_" + ofToString(i) + ".mov");
+                    vid_3[i]->setLoopState(OF_LOOP_NONE);
+                    //vid_3[i]->setPaused(true);
                 }
+//                for(auto p : vid_3) {
+//                    p->setPaused(true);
+//                    p->setPosition(0.0);
+//                }
                 //invDist = false;
                 //whichVid_3 = 0;
             } else if (dmode == E) {
-                for(auto p : vid_4) {
-                    p->setPaused(true);
-                    p->setPosition(0.0);
+                vid_4.clear();
+                for(int i=0; i<N_VIDEO_PLAYERS_4; i++) {
+                    vid_4.push_back(new ofxAVFVideoPlayer());
+                    vid_4[i]->loadMovie("videos/bike_" + ofToString(i) + ".mov");
+                    vid_4[i]->setLoopState(OF_LOOP_NONE);
+                    //vid_4[i]->setPaused(true);
                 }
+//                for(auto p : vid_4) {
+//                    p->setPaused(true);
+//                    p->setPosition(0.0);
+//                }
                 //invDist = false;
-                //whichVid_3 = 0;
+                //whichVid_r = 0;
             }
 			break;
+            
+            /* 4 - Bike  */
+            
+            
+            
+            whichVid_4 = 0;
+            /* * * * * * * * * * */
 	}
 }
 
@@ -1032,6 +1075,39 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+//--------------------------------------------------------------
+void ofApp::clearAll() {
+    aVideoIsPlaying = false;
+    
+    
+    switch (dmode) {
+        case B:
+            videoPlayers1.clear();
+            break;
+            
+        case C:
+            videoPlayers1.clear();
+            vid_2_A.clear();
+            vid_2_B.clear();
+            vid_2_C.clear();
+            vid_2_D.clear();
+            vid_2_E.clear();
+            vid_2_F.clear();
+            break;
+            
+        case D:
+            vid_3.clear();
+            break;
+            
+        case E:
+            vid_4.clear();
+            break;
+            
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------

@@ -26,6 +26,7 @@ public:
     void gotMessage(ofMessage msg);
     
     void pauseAll();
+    void clearAll();
     
     ofxIntSlider minBlob;
     ofxIntSlider maxBlob;
