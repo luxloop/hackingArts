@@ -6,6 +6,8 @@ void ofApp::setup(){
 	ofSetFrameRate(60);
     ofBackground(0);
     
+    trim = 0.97;
+    
     
     /* 1 - Two-Shot */
     
@@ -24,23 +26,43 @@ void ofApp::setup(){
     
     /* 2 - Boy/Girl Branching Dialogue  */
     
+    vid_2_A.push_back(new ofxAVFVideoPlayer());
+    vid_2_A[0]->loadMovie("videos/narr_A.mov");
+    vid_2_A[0]->setLoopState(OF_LOOP_NONE);
+    //vid_2_A[0]->setPaused(true);
+    
+    vid_2_F.push_back(new ofxAVFVideoPlayer());
+    vid_2_F[0]->loadMovie("videos/narr_F_0.mov");
+    vid_2_F[0]->setLoopState(OF_LOOP_NONE);
+    //vid_2_F[0]->setPaused(true);
+    
     for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
-        vid_2_A.push_back(new ofxAVFVideoPlayer());
-        vid_2_A[i]->loadMovie("videos/narr_A.mov");
-        vid_2_A[i]->setLoopState(OF_LOOP_NONE);
-        vid_2_A[i]->setPaused(true);
-        
         vid_2_B.push_back(new ofxAVFVideoPlayer());
         vid_2_B[i]->loadMovie("videos/narr_B_" + ofToString(i) + ".mov");
         vid_2_B[i]->setLoopState(OF_LOOP_NONE);
-        vid_2_B[i]->setPaused(true);
+        //vid_2_B[i]->setPaused(true);
+        
+        vid_2_C.push_back(new ofxAVFVideoPlayer());
+        vid_2_C[i]->loadMovie("videos/narr_C_" + ofToString(i) + ".mov");
+        vid_2_C[i]->setLoopState(OF_LOOP_NONE);
+        //vid_2_C[i]->setPaused(true);
+        
+        vid_2_D.push_back(new ofxAVFVideoPlayer());
+        vid_2_D[i]->loadMovie("videos/narr_D_" + ofToString(i) + ".mov");
+        vid_2_D[i]->setLoopState(OF_LOOP_NONE);
+        //vid_2_D[i]->setPaused(true);
+        
+        vid_2_E.push_back(new ofxAVFVideoPlayer());
+        vid_2_E[i]->loadMovie("videos/narr_E_" + ofToString(i) + ".mov");
+        vid_2_E[i]->setLoopState(OF_LOOP_NONE);
+        //vid_2_E[i]->setPaused(true);
     }
     flopper2 = true;
     v2_Path = "videos/narr_";
     v2_Scene = "A";
     v2_Done = false;
     v2_onDeck = true;
-    v2_next = 0;
+    v2_Next = "B";
     /* * * * * * * * * * */
     
     
@@ -116,95 +138,97 @@ void ofApp::update(){
                 for(auto p : vid_2_A) {
                     p->update();
                 }
-                
                 for(auto p : vid_2_B) {
                     p->update();
                 }
-                
-                //if (vid_2_A[whichVid_2]->getPosition() > 0.9 && !v2_onDeck) {
-                if (!v2_onDeck) {
-                    if (v2_Scene == "A") {
-                        v2_Scene = "B";
-                    } else if (v2_Scene == "B") {
-                        v2_Scene = "C";
-                    } else if (v2_Scene == "C") {
-                        v2_Scene = "D";
-                    } else if (v2_Scene == "D") {
-                        v2_Scene = "E";
-                    } else if (v2_Scene == "E") {
-                        v2_Scene = "F";
-                    }
-                    
-                    //string onDeckPath = v2_Path + v2_Scene + "_" + ofToString(whichThresh) + ".mov";
-                    
-                    if (flopper2) {
-                        for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
-                            
-                            if (v2_Scene != "B") {
-                                vid_2_B[i]->stop();
-                                vid_2_B[i]->closeMovie();
-                                vid_2_B[i]->loadMovie(v2_Path + v2_Scene + "_" + ofToString(i) + ".mov");
-                                cout << "loading B: " << vid_2_B[i]->getMoviePath() << endl;
-                            }
-                            
-                            //vid_2_B[i]->setPaused(true);
-
-                        }
-                    } else {
-                        for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
-                            
-                            if (v2_Scene != "B") {
-                                vid_2_A[i]->stop();
-                                vid_2_A[i]->closeMovie();
-                                vid_2_A[i]->loadMovie(v2_Path + v2_Scene + "_" + ofToString(i) + ".mov");
-                                cout << "loading A: " << vid_2_A[i]->getMoviePath() << endl;
-                            }
-                            //vid_2_A[i]->setPaused(true);
-                            
-                        }
-                    }
-                    
-                    v2_onDeck = true;
+                for(auto p : vid_2_C) {
+                    p->update();
+                }
+                for(auto p : vid_2_D) {
+                    p->update();
+                }
+                for(auto p : vid_2_E) {
+                    p->update();
+                }
+                for(auto p : vid_2_F) {
+                    p->update();
                 }
                 
                 
-                if (flopper2) {
-                    if (vid_2_A[whichVid_2]->getPosition() > 0.98 && !v2_Done){
-                        v2_next = whichThresh;
-                        vid_2_B[v2_next]->play();
-                        cout << "playing B" << endl;
+                if (v2_Scene == "A") {
+                    v2_Next = "B";
+                    if (vid_2_A[whichVid_2]->getPosition() > trim){
+                        v2_Thresh = whichThresh;
+                        vid_2_B[v2_Thresh]->play();
                     }
                     
-                    if (vid_2_A[whichVid_2]->getIsMovieDone() && !v2_Done) {
-                        cout << "VID A Done: " << vid_2_A[whichVid_2]->getMoviePath() << endl;
-                        if (v2_Scene == "F") {
-                            v2_Done = true;
-                        }
-                        whichVid_2 = v2_next;
-                        v2_next = 0;
-                        flopper2 = !flopper2;
+                    if (vid_2_A[whichVid_2]->getIsMovieDone()) {
+                        whichVid_2 = v2_Thresh;
+                        v2_Thresh = 0;
                         //videoPlayers2[whichVid_2]->play();
-                        v2_onDeck = false;
-                        
-                    }
-                } else {
-                    if (vid_2_B[whichVid_2]->getPosition() > 0.98 && !v2_Done){
-                        v2_next = whichThresh;
-                        vid_2_A[v2_next]->play();
-                        cout << "playing B" << endl;
+                        v2_Scene = v2_Next;
                     }
                     
-                    if (vid_2_B[whichVid_2]->getIsMovieDone() && !v2_Done) {
-                        cout << "VID B Done: " << vid_2_B[whichVid_2]->getMoviePath() << endl;
-                        if (v2_Scene == "F") {
-                            v2_Done = true;
-                        }
-                        whichVid_2 = v2_next;
-                        v2_next = 0;
-                        flopper2 = !flopper2;
+                } else if (v2_Scene == "B") {
+                    v2_Next = "C";
+                    if (vid_2_B[whichVid_2]->getPosition() > trim){
+                        v2_Thresh = whichThresh;
+                        vid_2_C[v2_Thresh]->play();
+                    }
+                    
+                    if (vid_2_B[whichVid_2]->getIsMovieDone()) {
+                        whichVid_2 = v2_Thresh;
+                        v2_Thresh = 0;
                         //videoPlayers2[whichVid_2]->play();
-                        v2_onDeck = false;
-                        
+                        v2_Scene = v2_Next;
+                    }
+                    
+                } else if (v2_Scene == "C") {
+                    v2_Next = "D";
+                    if (vid_2_C[whichVid_2]->getPosition() > trim){
+                        v2_Thresh = whichThresh;
+                        vid_2_D[v2_Thresh]->play();
+                    }
+                    
+                    if (vid_2_C[whichVid_2]->getIsMovieDone()) {
+                        whichVid_2 = v2_Thresh;
+                        v2_Thresh = 0;
+                        //videoPlayers2[whichVid_2]->play();
+                        v2_Scene = v2_Next;
+                    }
+                    
+                } else if (v2_Scene == "D") {
+                    v2_Next = "E";
+                    if (vid_2_D[whichVid_2]->getPosition() > trim){
+                        v2_Thresh = whichThresh;
+                        vid_2_E[v2_Thresh]->play();
+                    }
+                    
+                    if (vid_2_D[whichVid_2]->getIsMovieDone()) {
+                        whichVid_2 = v2_Thresh;
+                        v2_Thresh = 0;
+                        //videoPlayers2[whichVid_2]->play();
+                        v2_Scene = v2_Next;
+                    }
+                    
+                } else if (v2_Scene == "E") {
+                    v2_Next = "F";
+                    if (vid_2_E[whichVid_2]->getPosition() > trim){
+                        v2_Thresh = whichThresh;
+                        vid_2_F[0]->play();
+                    }
+                    
+                    if (vid_2_E[whichVid_2]->getIsMovieDone()) {
+                        whichVid_2 = v2_Thresh;
+                        v2_Thresh = 0;
+                        //videoPlayers2[whichVid_2]->play();
+                        v2_Scene = v2_Next;
+                    }
+                    
+                } else if (v2_Scene == "F") {
+                    v2_Next = "X";
+                    if (vid_2_F[0]->getIsMovieDone()) {
+                        v2_Done = true;
                     }
                 }
                 
@@ -213,14 +237,30 @@ void ofApp::update(){
                     aVideoIsPlaying=false;
                     for(auto p : vid_2_A) {
                         p->stop();
+                        p->closeMovie();
                     }
                     for(auto p : vid_2_B) {
                         p->stop();
+                        p->closeMovie();
+                    }
+                    for(auto p : vid_2_C) {
+                        p->stop();
+                        p->closeMovie();
+                    }
+                    for(auto p : vid_2_D) {
+                        p->stop();
+                        p->closeMovie();
+                    }
+                    for(auto p : vid_2_E) {
+                        p->stop();
+                        p->closeMovie();
+                    }
+                    for(auto p : vid_2_F) {
+                        p->stop();
+                        p->closeMovie();
                     }
                     v2_Done = false;
                 }
-                
-                
                 
             break;
             }
@@ -360,15 +400,39 @@ void ofApp::draw(){
             //videoPlayers2[whichVid_2]->draw(-200, -150, 400, 300);
                 
             if (flopper2) {
-                float vidHeight = (ofGetWidth()*vid_2_A[whichVid_2]->getHeight())/vid_2_A[whichVid_2]->getWidth();
-                float vidStart = (ofGetHeight()-vidHeight)/2;
                 
-                vid_2_A[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
             } else {
                 float vidHeight = (ofGetWidth()*vid_2_B[whichVid_2]->getHeight())/vid_2_B[whichVid_2]->getWidth();
                 float vidStart = (ofGetHeight()-vidHeight)/2;
                 
                 vid_2_B[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            }
+                
+            
+            if (v2_Scene == "A") {
+                float vidHeight = (ofGetWidth()*vid_2_A[whichVid_2]->getHeight())/vid_2_A[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
+                vid_2_A[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            } else if (v2_Scene == "B") {
+                float vidHeight = (ofGetWidth()*vid_2_B[whichVid_2]->getHeight())/vid_2_B[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
+                vid_2_B[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            } else if (v2_Scene == "C") {
+                float vidHeight = (ofGetWidth()*vid_2_C[whichVid_2]->getHeight())/vid_2_C[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
+                vid_2_C[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            } else if (v2_Scene == "D") {
+                float vidHeight = (ofGetWidth()*vid_2_D[whichVid_2]->getHeight())/vid_2_D[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
+                vid_2_D[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            } else if (v2_Scene == "E") {
+                float vidHeight = (ofGetWidth()*vid_2_E[whichVid_2]->getHeight())/vid_2_E[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
+                vid_2_E[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            } else if (v2_Scene == "F") {
+                float vidHeight = (ofGetWidth()*vid_2_F[whichVid_2]->getHeight())/vid_2_F[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
+                vid_2_F[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
             }
                 
             ofPopMatrix();
@@ -466,7 +530,7 @@ void ofApp::draw(){
             video1 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
         }
         
-        ofDrawBitmapString(video1.str(), 650, 400);
+        ofDrawBitmapString(video1.str(), 650, 50);
         
         
         /* 2 - Boy/Girl Branching Dialogue  */
@@ -481,9 +545,25 @@ void ofApp::draw(){
             video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
             video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
         }
+        for(auto p : vid_2_C) {
+            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
+        for(auto p : vid_2_D) {
+            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
+        for(auto p : vid_2_E) {
+            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
+        for(auto p : vid_2_F) {
+            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
         
         
-        ofDrawBitmapString(video2.str(), 850, 400);
+        ofDrawBitmapString(video2.str(), 850, 50);
         
         
         
@@ -510,38 +590,22 @@ void ofApp::keyPressed(int key){
 			break;
             
         case '1':
+            pauseAll();
 			dmode = A;
 			break;
             
         case '2':
-            aVideoIsPlaying = false;
-            for(auto p : videoPlayers1) {
-                p->setPaused(true);
-            }
-            for(auto p : vid_2_A) {
-                p->setPaused(true);
-            }
-            for(auto p : vid_2_B) {
-                p->setPaused(true);
-            }
-			dmode = B;
+            pauseAll();
+            dmode = B;
 			break;
             
         case '3':
-            aVideoIsPlaying = false;
-            for(auto p : videoPlayers1) {
-                p->setPaused(true);
-            }
-            for(auto p : vid_2_A) {
-                p->setPaused(true);
-            }
-            for(auto p : vid_2_B) {
-                p->setPaused(true);
-            }
+            pauseAll();
 			dmode = C;
 			break;
             
         case '4':
+            pauseAll();
 			dmode = D;
 			break;
             
@@ -576,11 +640,39 @@ void ofApp::keyPressed(int key){
                         p->setPaused(true);
                         aVideoIsPlaying = false;
                     }
+                    for(auto p : vid_2_C) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
+                    }
+                    for(auto p : vid_2_D) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
+                    }
+                    for(auto p : vid_2_E) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
+                    }
+                    for(auto p : vid_2_F) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
+                    }
                 } else {
-                    if (flopper2) {
+                    if (v2_Scene == "A") {
                         vid_2_A[whichVid_2]->play();
-                    } else {
+                    } else if (v2_Scene == "B") {
                         vid_2_B[whichVid_2]->play();
+                    } else if (v2_Scene == "C") {
+                        vid_2_C[whichVid_2]->play();
+                    } else if (v2_Scene == "D") {
+                        vid_2_D[whichVid_2]->play();
+                    } else if (v2_Scene == "E") {
+                        vid_2_E[whichVid_2]->play();
+                    } else if (v2_Scene == "F") {
+                        vid_2_F[whichVid_2]->play();
                     }
                     
                     aVideoIsPlaying = true;
@@ -596,24 +688,45 @@ void ofApp::keyPressed(int key){
                     p->setPosition(0.0);
                 }
             } else if (dmode == C) {
+                vid_2_A.push_back(new ofxAVFVideoPlayer());
+                vid_2_A[0]->loadMovie("videos/narr_A.mov");
+                vid_2_A[0]->setLoopState(OF_LOOP_NONE);
+                //vid_2_A[0]->setPaused(true);
+                
+                vid_2_F.push_back(new ofxAVFVideoPlayer());
+                vid_2_F[0]->loadMovie("videos/narr_F_0.mov");
+                vid_2_F[0]->setLoopState(OF_LOOP_NONE);
+                //vid_2_F[0]->setPaused(true);
+                
                 for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
-                    vid_2_A.push_back(new ofxAVFVideoPlayer());
-                    vid_2_A[i]->loadMovie("videos/narr_A.mov");
-                    vid_2_A[i]->setLoopState(OF_LOOP_NONE);
-                    vid_2_A[i]->setPaused(true);
-                    
                     vid_2_B.push_back(new ofxAVFVideoPlayer());
                     vid_2_B[i]->loadMovie("videos/narr_B_" + ofToString(i) + ".mov");
                     vid_2_B[i]->setLoopState(OF_LOOP_NONE);
-                    vid_2_B[i]->setPaused(true);
+                    //vid_2_B[i]->setPaused(true);
+                    
+                    vid_2_C.push_back(new ofxAVFVideoPlayer());
+                    vid_2_C[i]->loadMovie("videos/narr_C_" + ofToString(i) + ".mov");
+                    vid_2_C[i]->setLoopState(OF_LOOP_NONE);
+                    //vid_2_C[i]->setPaused(true);
+                    
+                    vid_2_D.push_back(new ofxAVFVideoPlayer());
+                    vid_2_D[i]->loadMovie("videos/narr_D_" + ofToString(i) + ".mov");
+                    vid_2_D[i]->setLoopState(OF_LOOP_NONE);
+                    //vid_2_D[i]->setPaused(true);
+                    
+                    vid_2_E.push_back(new ofxAVFVideoPlayer());
+                    vid_2_E[i]->loadMovie("videos/narr_E_" + ofToString(i) + ".mov");
+                    vid_2_E[i]->setLoopState(OF_LOOP_NONE);
+                    //vid_2_E[i]->setPaused(true);
                 }
                 flopper2 = true;
-                whichVid_2 = 0;
                 v2_Path = "videos/narr_";
                 v2_Scene = "A";
                 v2_Done = false;
-                v2_Scene = "A";
-                scrubber = 20;
+                v2_onDeck = true;
+                v2_Next = "B";
+                
+                whichVid_2 = 0;
             }
 			break;
 	}
@@ -657,6 +770,34 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+//--------------------------------------------------------------
+void ofApp::pauseAll() {
+    aVideoIsPlaying = false;
+    for(auto p : videoPlayers1) {
+        p->setPaused(true);
+    }
+    
+    for(auto p : vid_2_A) {
+        p->setPaused(true);
+    }
+    for(auto p : vid_2_B) {
+        p->setPaused(true);
+    }
+    for(auto p : vid_2_C) {
+        p->setPaused(true);
+    }
+    for(auto p : vid_2_D) {
+        p->setPaused(true);
+    }
+    for(auto p : vid_2_E) {
+        p->setPaused(true);
+    }
+    for(auto p : vid_2_F) {
+        p->setPaused(true);
+    }
+    
 }
 
 //--------------------------------------------------------------

@@ -25,6 +25,8 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
+    void pauseAll();
+    
     ofxIntSlider minBlob;
     ofxIntSlider maxBlob;
     ofxIntSlider nearThresh;
@@ -78,7 +80,7 @@ public:
     
     bool aVideoIsPlaying;
     
-    
+    float trim;
 
     /* 1 - Two-Shot Players */
     std::vector<ofxAVFVideoPlayer *> videoPlayers1;
@@ -87,15 +89,21 @@ public:
     /* 2 - Boy/Girl Branching Dialogue  */
 	std::vector<ofxAVFVideoPlayer *> vid_2_A;
     std::vector<ofxAVFVideoPlayer *> vid_2_B;
+    std::vector<ofxAVFVideoPlayer *> vid_2_C;
+    std::vector<ofxAVFVideoPlayer *> vid_2_D;
+    std::vector<ofxAVFVideoPlayer *> vid_2_E;
+    std::vector<ofxAVFVideoPlayer *> vid_2_F;
     static const int N_VIDEO_PLAYERS_2 = 4;
     bool flopper2;
     
     string v2_Path;
     string v2_Scene;
+    string v2_Next;
+    int v2_Thresh;
     bool v2_onDeck;
     bool v2_Done;
     int whichVid_2;
-    int v2_next;
+//    int v2_next;
     /* * * * * * * * * * */
     
     
