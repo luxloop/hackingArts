@@ -8,6 +8,8 @@ void ofApp::setup(){
     
     trim = 0.97;
     
+    showLoaded = true;
+    
     
     /* 1 - Two-Shot */
     
@@ -66,6 +68,20 @@ void ofApp::setup(){
     /* * * * * * * * * * */
     
     
+    /* 3 - Distance  */
+    
+    for(int i=0; i<N_VIDEO_PLAYERS_3; i++) {
+        vid_3.push_back(new ofxAVFVideoPlayer());
+        vid_3[i]->loadMovie("videos/distance_" + ofToString(i) + ".mov");
+        vid_3[i]->setLoopState(OF_LOOP_NONE);
+        //vid_3[i]->setPaused(true);
+    }
+    
+    invDist = false;
+    whichVid_3 = 0;
+    /* * * * * * * * * * */
+    
+    
 	//ofSetLogLevel(OF_LOG_VERBOSE);
     dmode = A;
     meters = 0.0;
@@ -110,6 +126,34 @@ void ofApp::setup(){
 void ofApp::update(){
     kinect.setCameraTiltAngle(kAngle);
     
+    for(auto p : videoPlayers1) {
+        p->update();
+    }
+    
+    for(auto p : vid_2_A) {
+        p->update();
+    }
+    for(auto p : vid_2_B) {
+        p->update();
+    }
+    for(auto p : vid_2_C) {
+        p->update();
+    }
+    for(auto p : vid_2_D) {
+        p->update();
+    }
+    for(auto p : vid_2_E) {
+        p->update();
+    }
+    for(auto p : vid_2_F) {
+        p->update();
+    }
+    
+    for(auto p : vid_3) {
+        p->update();
+    }
+
+    
     switch (dmode) {
         case A:
             {
@@ -119,9 +163,9 @@ void ofApp::update(){
         case B:
             {
             /* 1 - Two-Shot Players */
-                for(auto p : videoPlayers1) {
-                    p->update();
-                }
+//                for(auto p : videoPlayers1) {
+//                    p->update();
+//                }
                 
                 for(auto p : videoPlayers1) {
                     if (p->getIsMovieDone()) {
@@ -135,24 +179,24 @@ void ofApp::update(){
         case C:
             {
             /* 2 - Boy/Girl Branching Dialogue  */
-                for(auto p : vid_2_A) {
-                    p->update();
-                }
-                for(auto p : vid_2_B) {
-                    p->update();
-                }
-                for(auto p : vid_2_C) {
-                    p->update();
-                }
-                for(auto p : vid_2_D) {
-                    p->update();
-                }
-                for(auto p : vid_2_E) {
-                    p->update();
-                }
-                for(auto p : vid_2_F) {
-                    p->update();
-                }
+//                for(auto p : vid_2_A) {
+//                    p->update();
+//                }
+//                for(auto p : vid_2_B) {
+//                    p->update();
+//                }
+//                for(auto p : vid_2_C) {
+//                    p->update();
+//                }
+//                for(auto p : vid_2_D) {
+//                    p->update();
+//                }
+//                for(auto p : vid_2_E) {
+//                    p->update();
+//                }
+//                for(auto p : vid_2_F) {
+//                    p->update();
+//                }
                 
                 
                 if (v2_Scene == "A") {
@@ -264,6 +308,34 @@ void ofApp::update(){
                 
             break;
             }
+            
+        case D:
+        {
+            for(auto p : vid_3) {
+                p->setPaused(true);
+            }
+            
+            if (!invDist) {
+                whichVid_3 = whichThresh;
+            } else {
+                whichVid_3 = abs(whichThresh-3);
+            }
+            for (int i = 0; i < N_VIDEO_PLAYERS_3; i++) {
+                if (i == whichVid_3 && aVideoIsPlaying) {
+                    vid_3[i]->play();
+                }
+            }
+            
+            for(auto p : vid_3) {
+                if (p->getIsMovieDone()) {
+                    aVideoIsPlaying=false;
+                    p->setPaused(true);
+                    p->setPosition(0.0);
+                }
+            }
+            
+            break;
+        }
         default:
             break;
     }
@@ -440,45 +512,56 @@ void ofApp::draw(){
             
             
             
-            if (showTimeline) {
-                ofSetColor(255, 200);
-                if (whichThresh == 0) {
-                    ofSetColor(94, 0, 182, 200);
-                }
-                ofRect(20, ofGetHeight() - 100, ofGetWidth()-40, 10);
-                
-                ofSetColor(255, 200);
-                if (whichThresh == 1) {
-                    ofSetColor(0, 172, 236, 200);
-                }
-                ofRect(20, ofGetHeight() - 80, ofGetWidth()-40, 10);
-                
-                ofSetColor(255, 200);
-                if (whichThresh == 2) {
-                    ofSetColor(224, 146, 47, 200);
-                }
-                ofRect(20, ofGetHeight() - 60, ofGetWidth()-40, 10);
-                
-                ofSetColor(255, 200);
-                if (whichThresh == 3) {
-                    ofSetColor(190, 0, 0, 200);
-                }
-                ofRect(20, ofGetHeight() - 40, ofGetWidth()-40, 10);
-                
-                int xAcross = scrubber;
-                if (xAcross > ofGetWidth() - 20) {
-                    xAcross = 20;
-                    scrubber = 20;
-                }
-                ofSetColor(0, 0, 255, 255);
-                ofRect(xAcross, ofGetHeight()-110, 2, 90);
-                scrubber+=0.4;
-            }
-            
-            ofSetColor(255, 255, 255, 255);
+//            if (showTimeline) {
+//                ofSetColor(255, 200);
+//                if (whichThresh == 0) {
+//                    ofSetColor(94, 0, 182, 200);
+//                }
+//                ofRect(20, ofGetHeight() - 100, ofGetWidth()-40, 10);
+//                
+//                ofSetColor(255, 200);
+//                if (whichThresh == 1) {
+//                    ofSetColor(0, 172, 236, 200);
+//                }
+//                ofRect(20, ofGetHeight() - 80, ofGetWidth()-40, 10);
+//                
+//                ofSetColor(255, 200);
+//                if (whichThresh == 2) {
+//                    ofSetColor(224, 146, 47, 200);
+//                }
+//                ofRect(20, ofGetHeight() - 60, ofGetWidth()-40, 10);
+//                
+//                ofSetColor(255, 200);
+//                if (whichThresh == 3) {
+//                    ofSetColor(190, 0, 0, 200);
+//                }
+//                ofRect(20, ofGetHeight() - 40, ofGetWidth()-40, 10);
+//                
+//                int xAcross = scrubber;
+//                if (xAcross > ofGetWidth() - 20) {
+//                    xAcross = 20;
+//                    scrubber = 20;
+//                }
+//                ofSetColor(0, 0, 255, 255);
+//                ofRect(xAcross, ofGetHeight()-110, 2, 90);
+//                scrubber+=0.4;
+//            }
+//            
+//            ofSetColor(255, 255, 255, 255);
             break;
             }
+            
         case D:
+        {
+            
+            float vidHeight = (ofGetWidth()*vid_3[0]->getHeight())/vid_3[0]->getWidth();
+            float vidStart = (ofGetHeight()-vidHeight)/2;
+            
+            vid_3[whichVid_3]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            break;
+        }
+            
+        case Z:
             switch (whichThresh) {
                 case 0:
                     ofSetColor(120, 0, 0);
@@ -507,6 +590,43 @@ void ofApp::draw(){
         default:
             break;
     }
+    
+    if (showTimeline) {
+        ofSetColor(255, 200);
+        if (whichThresh == 0) {
+            ofSetColor(94, 0, 182, 200);
+        }
+        ofRect(20, ofGetHeight() - 100, ofGetWidth()-40, 10);
+        
+        ofSetColor(255, 200);
+        if (whichThresh == 1) {
+            ofSetColor(0, 172, 236, 200);
+        }
+        ofRect(20, ofGetHeight() - 80, ofGetWidth()-40, 10);
+        
+        ofSetColor(255, 200);
+        if (whichThresh == 2) {
+            ofSetColor(224, 146, 47, 200);
+        }
+        ofRect(20, ofGetHeight() - 60, ofGetWidth()-40, 10);
+        
+        ofSetColor(255, 200);
+        if (whichThresh == 3) {
+            ofSetColor(190, 0, 0, 200);
+        }
+        ofRect(20, ofGetHeight() - 40, ofGetWidth()-40, 10);
+        
+        int xAcross = scrubber;
+        if (xAcross > ofGetWidth() - 20) {
+            xAcross = 20;
+            scrubber = 20;
+        }
+        ofSetColor(0, 0, 255, 255);
+        ofRect(xAcross, ofGetHeight()-110, 2, 90);
+        scrubber+=0.4;
+    }
+    
+    ofSetColor(255, 255, 255, 255);
 
     
 	
@@ -521,51 +641,59 @@ void ofApp::draw(){
         
         ofDrawBitmapString(reportStream.str(), 20, 652);
         
-        /* 1 - Two-Shot */
-        stringstream video1;
-        video1 << "Two-Shot" << endl;
+        if (showLoaded) {
         
-        for(auto p : videoPlayers1) {
-            video1 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video1 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            /* 1 - Two-Shot */
+            stringstream video1;
+            video1 << "Two-Shot" << endl;
+            
+            for(auto p : videoPlayers1) {
+                video1 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video1 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            ofDrawBitmapString(video1.str(), 650, 50);
+            
+            
+            /* 2 - Boy/Girl Branching Dialogue  */
+            stringstream video2;
+            video2 << "Boy/Girl Dialogue" << endl;
+            
+            for(auto p : vid_2_A) {
+                video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            for(auto p : vid_2_B) {
+                video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            for(auto p : vid_2_C) {
+                video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            for(auto p : vid_2_D) {
+                video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            for(auto p : vid_2_E) {
+                video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            for(auto p : vid_2_F) {
+                video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            ofDrawBitmapString(video2.str(), 850, 50);
+            
+            /* 2 - Distance */
+            stringstream video3;
+            video3 << "Distance" << endl;
+            
+            for(auto p : vid_3) {
+                video3 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video3 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            ofDrawBitmapString(video3.str(), 1050, 50);
         }
-        
-        ofDrawBitmapString(video1.str(), 650, 50);
-        
-        
-        /* 2 - Boy/Girl Branching Dialogue  */
-        stringstream video2;
-        video2 << "Boy/Girl Dialogue" << endl;
-        
-        for(auto p : vid_2_A) {
-            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
-        }
-        for(auto p : vid_2_B) {
-            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
-        }
-        for(auto p : vid_2_C) {
-            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
-        }
-        for(auto p : vid_2_D) {
-            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
-        }
-        for(auto p : vid_2_E) {
-            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
-        }
-        for(auto p : vid_2_F) {
-            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
-            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
-        }
-        
-        
-        ofDrawBitmapString(video2.str(), 850, 50);
-        
-        
         
         
         gui.draw();
@@ -609,8 +737,21 @@ void ofApp::keyPressed(int key){
 			dmode = D;
 			break;
             
+        case '0':
+            pauseAll();
+			dmode = Z;
+			break;
+            
         case 't':
             showTimeline = !showTimeline;
+			break;
+            
+        case 'l':
+            showLoaded = !showLoaded;
+			break;
+        
+        case 'i':
+            invDist = !invDist;
 			break;
             
         case ' ':
@@ -677,6 +818,20 @@ void ofApp::keyPressed(int key){
                     
                     aVideoIsPlaying = true;
                 }
+            } else if (dmode == D) {
+                if (aVideoIsPlaying) {
+                    for(auto p : vid_3) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
+                    }
+                } else {
+                    for(auto p : vid_3) {
+                        p->play();
+                        aVideoIsPlaying = true;
+                    }
+                }
+                
             }
 			break;
             
@@ -727,6 +882,13 @@ void ofApp::keyPressed(int key){
                 v2_Next = "B";
                 
                 whichVid_2 = 0;
+            } else if (dmode == D) {
+                for(auto p : vid_3) {
+                    p->setPaused(true);
+                    p->setPosition(0.0);
+                }
+                //invDist = false;
+                //whichVid_3 = 0;
             }
 			break;
 	}
@@ -795,6 +957,10 @@ void ofApp::pauseAll() {
         p->setPaused(true);
     }
     for(auto p : vid_2_F) {
+        p->setPaused(true);
+    }
+    
+    for(auto p : vid_3) {
         p->setPaused(true);
     }
     

@@ -65,7 +65,7 @@ public:
 	
 	int kinectAngle;
     
-    enum displayModes {A, B, C, D};
+    enum displayModes {A, B, C, D, Z};
     displayModes dmode;
     
     float meters;
@@ -78,6 +78,8 @@ public:
     bool showTimeline;
     float scrubber;
     
+    bool showLoaded;
+    
     bool aVideoIsPlaying;
     
     float trim;
@@ -85,6 +87,8 @@ public:
     /* 1 - Two-Shot Players */
     std::vector<ofxAVFVideoPlayer *> videoPlayers1;
     static const int N_VIDEO_PLAYERS_1 = 2;
+    /* * * * * * * * * * */
+    
     
     /* 2 - Boy/Girl Branching Dialogue  */
 	std::vector<ofxAVFVideoPlayer *> vid_2_A;
@@ -103,8 +107,13 @@ public:
     bool v2_onDeck;
     bool v2_Done;
     int whichVid_2;
-//    int v2_next;
     /* * * * * * * * * * */
     
     
+    /* 3 - Distance  */
+    std::vector<ofxAVFVideoPlayer *> vid_3;
+    static const int N_VIDEO_PLAYERS_3 = 4;
+    bool invDist;
+    int whichVid_3;
+    /* * * * * * * * * * */
 };
