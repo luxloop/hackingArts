@@ -82,6 +82,19 @@ void ofApp::setup(){
     /* * * * * * * * * * */
     
     
+    /* 4 - Bike  */
+    
+    for(int i=0; i<N_VIDEO_PLAYERS_4; i++) {
+        vid_4.push_back(new ofxAVFVideoPlayer());
+        vid_4[i]->loadMovie("videos/bike_" + ofToString(i) + ".mov");
+        vid_4[i]->setLoopState(OF_LOOP_NONE);
+        //vid_4[i]->setPaused(true);
+    }
+    
+    whichVid_4 = 0;
+    /* * * * * * * * * * */
+    
+    
 	//ofSetLogLevel(OF_LOG_VERBOSE);
     dmode = A;
     meters = 0.0;
@@ -92,6 +105,7 @@ void ofApp::setup(){
     whichVid_1 = 0;
     whichVid_2 = 0;
     whichThresh = 0;
+    whichThreshLR = 0;
     
     aVideoIsPlaying = false;
     showTimeline = false;
@@ -150,6 +164,10 @@ void ofApp::update(){
     }
     
     for(auto p : vid_3) {
+        p->update();
+    }
+    
+    for(auto p : vid_4) {
         p->update();
     }
 
@@ -336,6 +354,32 @@ void ofApp::update(){
             
             break;
         }
+            
+        case E:
+        {
+            for(auto p : vid_4) {
+                p->setPaused(true);
+            }
+            
+            whichVid_4 = whichThreshLR;
+            
+            for (int i = 0; i < N_VIDEO_PLAYERS_4; i++) {
+                if (i == whichVid_4 && aVideoIsPlaying) {
+                    vid_4[i]->play();
+                }
+            }
+            
+            for(auto p : vid_4) {
+                if (p->getIsMovieDone()) {
+                    aVideoIsPlaying=false;
+                    p->setPaused(true);
+                    p->setPosition(0.0);
+                }
+            }
+            
+            break;
+        }
+            
         default:
             break;
     }
@@ -402,8 +446,18 @@ void ofApp::update(){
         
         if (angle <= 90) {
             whichVid_1 = 0;
+            if (angle <= 45) {
+                whichThreshLR = 0;
+            } else {
+                whichThreshLR = 1;
+            }
         } else {
             whichVid_1 = 1;
+            if (angle <= 135) {
+                whichThreshLR = 2;
+            } else {
+                whichThreshLR = 3;
+            }
         }
         
         float vidPos = ofMap(angle, 45, 135, 0, 1,true);
@@ -561,6 +615,16 @@ void ofApp::draw(){
             break;
         }
             
+        case E:
+        {
+            
+            float vidHeight = (ofGetWidth()*vid_4[0]->getHeight())/vid_4[0]->getWidth();
+            float vidStart = (ofGetHeight()-vidHeight)/2;
+            
+            vid_4[whichVid_4]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            break;
+        }
+            
         case Z:
             switch (whichThresh) {
                 case 0:
@@ -684,7 +748,7 @@ void ofApp::draw(){
             }
             ofDrawBitmapString(video2.str(), 850, 50);
             
-            /* 2 - Distance */
+            /* 3 - Distance */
             stringstream video3;
             video3 << "Distance" << endl;
             
@@ -693,6 +757,16 @@ void ofApp::draw(){
                 video3 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
             }
             ofDrawBitmapString(video3.str(), 1050, 50);
+            
+            /* 4 - Bike */
+            stringstream video4;
+            video4 << "Bike" << endl;
+            
+            for(auto p : vid_4) {
+                video4 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+                video4 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+            }
+            ofDrawBitmapString(video4.str(), 1050, 350);
         }
         
         
@@ -735,6 +809,11 @@ void ofApp::keyPressed(int key){
         case '4':
             pauseAll();
 			dmode = D;
+			break;
+            
+        case '5':
+            pauseAll();
+			dmode = E;
 			break;
             
         case '0':
@@ -832,6 +911,20 @@ void ofApp::keyPressed(int key){
                     }
                 }
                 
+            } else if (dmode == E) {
+                if (aVideoIsPlaying) {
+                    for(auto p : vid_4) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
+                    }
+                } else {
+                    for(auto p : vid_4) {
+                        p->play();
+                        aVideoIsPlaying = true;
+                    }
+                }
+                
             }
 			break;
             
@@ -884,6 +977,13 @@ void ofApp::keyPressed(int key){
                 whichVid_2 = 0;
             } else if (dmode == D) {
                 for(auto p : vid_3) {
+                    p->setPaused(true);
+                    p->setPosition(0.0);
+                }
+                //invDist = false;
+                //whichVid_3 = 0;
+            } else if (dmode == E) {
+                for(auto p : vid_4) {
                     p->setPaused(true);
                     p->setPosition(0.0);
                 }
@@ -961,6 +1061,10 @@ void ofApp::pauseAll() {
     }
     
     for(auto p : vid_3) {
+        p->setPaused(true);
+    }
+    
+    for(auto p : vid_4) {
         p->setPaused(true);
     }
     

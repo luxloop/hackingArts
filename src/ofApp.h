@@ -65,7 +65,7 @@ public:
 	
 	int kinectAngle;
     
-    enum displayModes {A, B, C, D, Z};
+    enum displayModes {A, B, C, D, E, Z};
     displayModes dmode;
     
     float meters;
@@ -75,6 +75,7 @@ public:
     
     int whichVid_1;
     int whichThresh;
+    int whichThreshLR;
     bool showTimeline;
     float scrubber;
     
@@ -115,5 +116,12 @@ public:
     static const int N_VIDEO_PLAYERS_3 = 4;
     bool invDist;
     int whichVid_3;
+    /* * * * * * * * * * */
+    
+    
+    /* 4 - Bike  */
+    std::vector<ofxAVFVideoPlayer *> vid_4;
+    static const int N_VIDEO_PLAYERS_4 = 4;
+    int whichVid_4;
     /* * * * * * * * * * */
 };
