@@ -6,12 +6,9 @@ void ofApp::setup(){
 	ofSetFrameRate(60);
     ofBackground(0);
     
-    narrPath = "videos/narr_";
-    narrScene = "A";
     
-    narrDone = false;
+    /* 1 - Two-Shot */
     
-    // Two-Shot player:
     for(int i=0; i<N_VIDEO_PLAYERS_1; i++) {
         videoPlayers1.push_back(new ofxAVFVideoPlayer());
     }
@@ -22,14 +19,30 @@ void ofApp::setup(){
         p->setLoopState(OF_LOOP_NONE);
         p->setPaused(true);
     }
+    /* * * * * * * * * * */
     
-    //Branching player:
+    
+    /* 2 - Boy/Girl Branching Dialogue  */
+    
     for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
-        videoPlayers2.push_back(new ofxAVFVideoPlayer());
-        videoPlayers2[i]->loadMovie("videos/narr_A.mov");
-        videoPlayers2[i]->setLoopState(OF_LOOP_NONE);
-        videoPlayers2[i]->setPaused(true);
+        vid_2_A.push_back(new ofxAVFVideoPlayer());
+        vid_2_A[i]->loadMovie("videos/narr_A.mov");
+        vid_2_A[i]->setLoopState(OF_LOOP_NONE);
+        vid_2_A[i]->setPaused(true);
+        
+        vid_2_B.push_back(new ofxAVFVideoPlayer());
+        vid_2_B[i]->loadMovie("videos/narr_B_" + ofToString(i) + ".mov");
+        vid_2_B[i]->setLoopState(OF_LOOP_NONE);
+        vid_2_B[i]->setPaused(true);
     }
+    flopper2 = true;
+    v2_Path = "videos/narr_";
+    v2_Scene = "A";
+    v2_Done = false;
+    v2_onDeck = true;
+    v2_next = 0;
+    /* * * * * * * * * * */
+    
     
 	//ofSetLogLevel(OF_LOG_VERBOSE);
     dmode = A;
@@ -42,10 +55,10 @@ void ofApp::setup(){
     whichVid_2 = 0;
     whichThresh = 0;
     
-    playAll = false;
+    aVideoIsPlaying = false;
     showTimeline = false;
     scrubber = 20;
-    onDeck = false;
+    
     
     gui.setup();
     gui.add(minBlob.setup("Min Blob Size", 10000, 5, 20000));
@@ -69,27 +82,155 @@ void ofApp::setup(){
 	grayImage.allocate(kinect.width, kinect.height);
 	grayThreshNear.allocate(kinect.width, kinect.height);
 	grayThreshFar.allocate(kinect.width, kinect.height);
-    
-    
-	//grayCamImage.allocate(kinect.width, kinect.height);
-	//grayBg.allocate(kinect.width, kinect.height);
-	//grayDiff.allocate(kinect.width, kinect.height);
-	
-	//nearThreshold = 230;
-	//farThreshold = 70;
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     kinect.setCameraTiltAngle(kAngle);
     
-    for(auto p : videoPlayers1) {
-        p->update();
+    switch (dmode) {
+        case A:
+            {
+            break;
+            }
+            
+        case B:
+            {
+            /* 1 - Two-Shot Players */
+                for(auto p : videoPlayers1) {
+                    p->update();
+                }
+                
+                for(auto p : videoPlayers1) {
+                    if (p->getIsMovieDone()) {
+                        aVideoIsPlaying=false;
+                        p->setPaused(true);
+                        p->setPosition(0.0);
+                    }
+                }
+            break;
+            }
+        case C:
+            {
+            /* 2 - Boy/Girl Branching Dialogue  */
+                for(auto p : vid_2_A) {
+                    p->update();
+                }
+                
+                for(auto p : vid_2_B) {
+                    p->update();
+                }
+                
+                //if (vid_2_A[whichVid_2]->getPosition() > 0.9 && !v2_onDeck) {
+                if (!v2_onDeck) {
+                    if (v2_Scene == "A") {
+                        v2_Scene = "B";
+                    } else if (v2_Scene == "B") {
+                        v2_Scene = "C";
+                    } else if (v2_Scene == "C") {
+                        v2_Scene = "D";
+                    } else if (v2_Scene == "D") {
+                        v2_Scene = "E";
+                    } else if (v2_Scene == "E") {
+                        v2_Scene = "F";
+                    }
+                    
+                    //string onDeckPath = v2_Path + v2_Scene + "_" + ofToString(whichThresh) + ".mov";
+                    
+                    if (flopper2) {
+                        for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
+                            
+                            if (v2_Scene != "B") {
+                                vid_2_B[i]->stop();
+                                vid_2_B[i]->closeMovie();
+                                vid_2_B[i]->loadMovie(v2_Path + v2_Scene + "_" + ofToString(i) + ".mov");
+                                cout << "loading B: " << vid_2_B[i]->getMoviePath() << endl;
+                            }
+                            
+                            //vid_2_B[i]->setPaused(true);
+
+                        }
+                    } else {
+                        for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
+                            
+                            if (v2_Scene != "B") {
+                                vid_2_A[i]->stop();
+                                vid_2_A[i]->closeMovie();
+                                vid_2_A[i]->loadMovie(v2_Path + v2_Scene + "_" + ofToString(i) + ".mov");
+                                cout << "loading A: " << vid_2_A[i]->getMoviePath() << endl;
+                            }
+                            //vid_2_A[i]->setPaused(true);
+                            
+                        }
+                    }
+                    
+                    v2_onDeck = true;
+                }
+                
+                
+                if (flopper2) {
+                    if (vid_2_A[whichVid_2]->getPosition() > 0.98 && !v2_Done){
+                        v2_next = whichThresh;
+                        vid_2_B[v2_next]->play();
+                        cout << "playing B" << endl;
+                    }
+                    
+                    if (vid_2_A[whichVid_2]->getIsMovieDone() && !v2_Done) {
+                        cout << "VID A Done: " << vid_2_A[whichVid_2]->getMoviePath() << endl;
+                        if (v2_Scene == "F") {
+                            v2_Done = true;
+                        }
+                        whichVid_2 = v2_next;
+                        v2_next = 0;
+                        flopper2 = !flopper2;
+                        //videoPlayers2[whichVid_2]->play();
+                        v2_onDeck = false;
+                        
+                    }
+                } else {
+                    if (vid_2_B[whichVid_2]->getPosition() > 0.98 && !v2_Done){
+                        v2_next = whichThresh;
+                        vid_2_A[v2_next]->play();
+                        cout << "playing B" << endl;
+                    }
+                    
+                    if (vid_2_B[whichVid_2]->getIsMovieDone() && !v2_Done) {
+                        cout << "VID B Done: " << vid_2_B[whichVid_2]->getMoviePath() << endl;
+                        if (v2_Scene == "F") {
+                            v2_Done = true;
+                        }
+                        whichVid_2 = v2_next;
+                        v2_next = 0;
+                        flopper2 = !flopper2;
+                        //videoPlayers2[whichVid_2]->play();
+                        v2_onDeck = false;
+                        
+                    }
+                }
+                
+                
+                if (v2_Done) {
+                    aVideoIsPlaying=false;
+                    for(auto p : vid_2_A) {
+                        p->stop();
+                    }
+                    for(auto p : vid_2_B) {
+                        p->stop();
+                    }
+                    v2_Done = false;
+                }
+                
+                
+                
+            break;
+            }
+        default:
+            break;
     }
     
-    for(auto p : videoPlayers2) {
-        p->update();
-    }
+    
+    
+    
     
     
 	ofBackground(100, 100, 100);
@@ -171,7 +312,7 @@ void ofApp::draw(){
     
     switch (dmode) {
         case A:
-            
+            {
             kinect.drawDepth(0, 0, ofGetWidth(),ofGetWidth()*0.75);
             contourFinder.draw(0, 0, ofGetWidth(),ofGetWidth()*0.75);
             
@@ -200,6 +341,7 @@ void ofApp::draw(){
             }
             
             break;
+            }
             
         case B:
             {
@@ -208,17 +350,6 @@ void ofApp::draw(){
             float vidStart = (ofGetHeight()-vidHeight)/2;
             
             videoPlayers1[whichVid_1]->draw(0, vidStart, ofGetWidth(), vidHeight);
-            
-            for(auto p : videoPlayers1) {
-                if (p->getIsMovieDone()) {
-                    playAll=false;
-                    p->setPaused(true);
-                    p->setPosition(0.0);
-                }
-            }
-            
-            
-            //cout << videoPlayers1[0]->getIsMovieDone() << endl;
             break;
             }
     
@@ -227,76 +358,19 @@ void ofApp::draw(){
             ofPushMatrix();
             //ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
             //videoPlayers2[whichVid_2]->draw(-200, -150, 400, 300);
-            
-            float vidHeight = (ofGetWidth()*videoPlayers2[whichVid_2]->getHeight())/videoPlayers2[whichVid_2]->getWidth();
-            float vidStart = (ofGetHeight()-vidHeight)/2;
-            
-            videoPlayers2[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
-            
-            if (videoPlayers2[whichVid_2]->getPosition() > 0.9 && !onDeck){
-                if (narrScene == "A") {
-                    narrScene = "B";
-                } else if (narrScene == "B") {
-                    narrScene = "C";
-                } else if (narrScene == "C") {
-                    narrScene = "D";
-                } else if (narrScene == "D") {
-                    narrScene = "E";
-                } else if (narrScene == "E") {
-                    narrScene = "F";
-                } else if (narrScene == "F") {
-                    narrDone = true;
-                }
                 
-                string onDeckPath = narrPath + narrScene + "_" + ofToString(whichThresh) + ".mov";
+            if (flopper2) {
+                float vidHeight = (ofGetWidth()*vid_2_A[whichVid_2]->getHeight())/vid_2_A[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
                 
-//                if (narrDone) {
-//                    onDeckPath = "videos/narr_F.mov";
-//                }
+                vid_2_A[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
+            } else {
+                float vidHeight = (ofGetWidth()*vid_2_B[whichVid_2]->getHeight())/vid_2_B[whichVid_2]->getWidth();
+                float vidStart = (ofGetHeight()-vidHeight)/2;
                 
-                if (whichVid_2 == 0) {
-                    videoPlayers2[1]->stop();
-                    //videoPlayers2[1]->loadMovie("videos/narr_B_1.mov");
-                    videoPlayers2[1]->loadMovie(onDeckPath);
-                    videoPlayers2[1]->setPaused(true);
-                } else {
-                    videoPlayers2[0]->stop();
-                    videoPlayers2[0]->loadMovie(onDeckPath);
-                    videoPlayers2[0]->setPaused(true);
-                }
-                onDeck = true;
-            }
-            
-            if (videoPlayers2[whichVid_2]->getPosition() > 0.98 && !narrDone){
-                if (whichVid_2 == 0) {
-                    videoPlayers2[1]->play();
-                } else {
-                    videoPlayers2[0]->play();
-                }
-                
-            }
-
-            
-            
-            //if (videoPlayers2[whichVid_2]->getIsMovieDone()) {
-            if (videoPlayers2[whichVid_2]->getIsMovieDone() && !narrDone) {
-                if (whichVid_2 == 0) {
-                    whichVid_2 = 1;
-                } else {
-                    whichVid_2 = 0;
-                }
-                //videoPlayers2[whichVid_2]->play();
-                onDeck = false;
+                vid_2_B[whichVid_2]->draw(0, vidStart, ofGetWidth(), vidHeight);
             }
                 
-            
-                if (narrDone) {
-                    for(auto p : videoPlayers1) {
-                        playAll=false;
-                        p->setPaused(true);
-                        p->setPosition(0.0);
-                    }
-                }
             ofPopMatrix();
             
             
@@ -383,16 +457,33 @@ void ofApp::draw(){
         
         ofDrawBitmapString(reportStream.str(), 20, 652);
         
-        
+        /* 1 - Two-Shot */
         stringstream video1;
-        video1 << "First Group" << endl;
+        video1 << "Two-Shot" << endl;
         
         for(auto p : videoPlayers1) {
             video1 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
             video1 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
         }
         
-        ofDrawBitmapString(video1.str(), 650, 600);
+        ofDrawBitmapString(video1.str(), 650, 400);
+        
+        
+        /* 2 - Boy/Girl Branching Dialogue  */
+        stringstream video2;
+        video2 << "Boy/Girl Dialogue" << endl;
+        
+        for(auto p : vid_2_A) {
+            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
+        for(auto p : vid_2_B) {
+            video2 << ofToString(p->getMoviePath()) << endl;                ///////////////NEEDS LUXLOOP VERSION OF AVFVIDEOPLAYER
+            video2 << "isLoaded: " << p->isLoaded() << endl << "" << endl;
+        }
+        
+        
+        ofDrawBitmapString(video2.str(), 850, 400);
         
         
         
@@ -423,22 +514,28 @@ void ofApp::keyPressed(int key){
 			break;
             
         case '2':
-            playAll = false;
+            aVideoIsPlaying = false;
             for(auto p : videoPlayers1) {
                 p->setPaused(true);
             }
-            for(auto p : videoPlayers2) {
+            for(auto p : vid_2_A) {
+                p->setPaused(true);
+            }
+            for(auto p : vid_2_B) {
                 p->setPaused(true);
             }
 			dmode = B;
 			break;
             
         case '3':
-            playAll = false;
+            aVideoIsPlaying = false;
             for(auto p : videoPlayers1) {
                 p->setPaused(true);
             }
-            for(auto p : videoPlayers2) {
+            for(auto p : vid_2_A) {
+                p->setPaused(true);
+            }
+            for(auto p : vid_2_B) {
                 p->setPaused(true);
             }
 			dmode = C;
@@ -454,49 +551,68 @@ void ofApp::keyPressed(int key){
             
         case ' ':
 			if (dmode == B) {
-                if (playAll) {
+                if (aVideoIsPlaying) {
                     for(auto p : videoPlayers1) {
                         //p->stop();
                         p->setPaused(true);
-                        playAll = false;
+                        aVideoIsPlaying = false;
                     }
                 } else {
                     for(auto p : videoPlayers1) {
                         p->play();
-                        playAll = true;
+                        aVideoIsPlaying = true;
                     }
                 }
                 
             } else if (dmode == C) {
-                if (playAll) {
-                    for(auto p : videoPlayers2) {
+                if (aVideoIsPlaying) {
+                    for(auto p : vid_2_A) {
                         //p->stop();
                         p->setPaused(true);
-                        playAll = false;
+                        aVideoIsPlaying = false;
+                    }
+                    for(auto p : vid_2_B) {
+                        //p->stop();
+                        p->setPaused(true);
+                        aVideoIsPlaying = false;
                     }
                 } else {
-                    videoPlayers2[whichVid_2]->play();
-                    playAll = true;
+                    if (flopper2) {
+                        vid_2_A[whichVid_2]->play();
+                    } else {
+                        vid_2_B[whichVid_2]->play();
+                    }
+                    
+                    aVideoIsPlaying = true;
                 }
             }
 			break;
             
         case 'r':
-            playAll = false;
+            aVideoIsPlaying = false;
 			if (dmode == B) {
                 for(auto p : videoPlayers1) {
                     p->setPaused(true);
                     p->setPosition(0.0);
                 }
             } else if (dmode == C) {
-                for(auto p : videoPlayers2) {
-                    p->loadMovie("videos/narr_A.mov");
-                    p->setPaused(true);
-                    p->setPosition(0.0);
+                for(int i=0; i<N_VIDEO_PLAYERS_2; i++) {
+                    vid_2_A.push_back(new ofxAVFVideoPlayer());
+                    vid_2_A[i]->loadMovie("videos/narr_A.mov");
+                    vid_2_A[i]->setLoopState(OF_LOOP_NONE);
+                    vid_2_A[i]->setPaused(true);
+                    
+                    vid_2_B.push_back(new ofxAVFVideoPlayer());
+                    vid_2_B[i]->loadMovie("videos/narr_B_" + ofToString(i) + ".mov");
+                    vid_2_B[i]->setLoopState(OF_LOOP_NONE);
+                    vid_2_B[i]->setPaused(true);
                 }
+                flopper2 = true;
                 whichVid_2 = 0;
-                narrDone = false;
-                narrScene = "A";
+                v2_Path = "videos/narr_";
+                v2_Scene = "A";
+                v2_Done = false;
+                v2_Scene = "A";
                 scrubber = 20;
             }
 			break;

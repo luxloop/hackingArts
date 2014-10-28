@@ -72,23 +72,31 @@ public:
     float angle;
     
     int whichVid_1;
-    int whichVid_2;
     int whichThresh;
     bool showTimeline;
     float scrubber;
     
-    bool playAll;
-    bool onDeck;
+    bool aVideoIsPlaying;
     
-    string narrPath;
-    string narrScene;
     
-    bool narrDone;
 
-    
+    /* 1 - Two-Shot Players */
     std::vector<ofxAVFVideoPlayer *> videoPlayers1;
     static const int N_VIDEO_PLAYERS_1 = 2;
     
-	std::vector<ofxAVFVideoPlayer *> videoPlayers2;
-    static const int N_VIDEO_PLAYERS_2 = 2;
+    /* 2 - Boy/Girl Branching Dialogue  */
+	std::vector<ofxAVFVideoPlayer *> vid_2_A;
+    std::vector<ofxAVFVideoPlayer *> vid_2_B;
+    static const int N_VIDEO_PLAYERS_2 = 4;
+    bool flopper2;
+    
+    string v2_Path;
+    string v2_Scene;
+    bool v2_onDeck;
+    bool v2_Done;
+    int whichVid_2;
+    int v2_next;
+    /* * * * * * * * * * */
+    
+    
 };
